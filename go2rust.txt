@@ -1,0 +1,32 @@
+### 测试结果
+
+| 测试 | 请求 | Go 原版行为 | Rust 结果 | 状态 |
+|------|------|-------------|-----------|------|
+| 无参数 | `/status` | 200 `OK - service fine!` | 200 `OK - service fine!` | ✅ |
+| SERVICE | `?SERVICE=squid` | 200 `OK - service fine!` | 200 `OK - service fine!` | ✅ |
+| SERVICE+PORT | `?SERVICE=squid&PORT=80` | 200 `OK - service fine!` | 200 `OK - service fine!` | ✅ |
+| 文件不存在 | `?SERVICE=notexist` | 404 `Not Found - Service not available!` | 404 `Not Found - Service not available!` | ✅ |
+| VIP 存在 | `?SERVICE=squid&VIP=10.255.255.254` | 200 `OK - service and VIP all fine!` | 200 `OK - service and VIP all fine!` | ✅ |
+| VIP 不存在 | `?SERVICE=squid&VIP=1.2.3.4` | 404 `Not Found - VIP alias not available!` | 404 `Not Found - VIP alias not available!` | ✅ |
+| daemon 模式 | `-d` fork | 后台启动 + print PID | 后台启动 + print PID | ✅ |
+
+### 项目结构
+
+```
+/tmp/http_status_rust/
+├── Cargo.toml          # actix-web + clap + nix + getifaddrs
+├── src/
+│   └── main.rs         # 186 行
+```
+
+### Go → Rust 对照
+
+| Go 原版 | Rust 重写 |
+|---------|-----------|
+| `net/http` stdlib | `actix-web` 4 |
+| `flag` stdlib | `clap` derive |
+| `os.StartProcess` + env 状态机 | `nix::unistd::fork()` + `setsid()` |
+| `net.Interfaces()` | `getifaddrs` crate |
+| `os.Stat()` + `os.IsNotExist()` | `std::fs::metadata()` + `ErrorKind::NotFound` |
+| 0 依赖 | 4 依赖（actix-web, clap, nix, getifaddrs）|
+

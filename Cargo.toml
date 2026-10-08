@@ -1,0 +1,19 @@
+[package]
+name = "http_status"
+version = "0.1.0"
+edition = "2021"
+authors = ["efengcloud"]
+description = "A tiny HTTP health status server (Rust port of Go original)"
+license = "Apache-2.0"
+
+[[bin]]
+name = "http_status"
+path = "http_status.rs"
+
+[dependencies]
+actix-web = "4"
+clap = { version = "4", features = ["derive"] }
+log = "0.4"
+env_logger = "0.11"
+nix = { version = "0.29", features = ["fs", "user", "process", "signal", "net"] }
+getifaddrs = "0.6"
